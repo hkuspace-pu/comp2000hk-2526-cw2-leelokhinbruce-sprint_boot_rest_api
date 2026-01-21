@@ -1,5 +1,7 @@
 package com.example.SpringBootRestAPI.controller;
 
+import com.example.SpringBootRestAPI.CustomUserDetailsService;
+import com.example.SpringBootRestAPI.JwtTokenService;
 import com.example.SpringBootRestAPI.dto.LoginRequest;
 import com.example.SpringBootRestAPI.dto.RegisterRequest;
 import com.example.SpringBootRestAPI.entity.Role;
@@ -17,15 +19,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Optional;import java.util.Set;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,10 +40,15 @@ public class AuthenticationController {
     private UserRepository userRepository;
     @Autowired
     private RoleRepository roleRepository;
+    @Autowired
+    private JwtTokenService jwtService;
+
     // SecurityContextLogoutHandler(): invalidate session and clear the security context
     private final SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
+    @org.springframework.beans.factory.annotation.Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
-    // Login / Sign in
+    // Login | Sign in
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -57,13 +64,16 @@ public class AuthenticationController {
             // Spring Security uses this info for authorization
             SecurityContextHolder.setContext(context);
 
-            return new ResponseEntity<>("User signed-in successfully!", HttpStatus.OK);
+            String token = jwtService.generateToken((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal());
+
+            return new ResponseEntity<>(token, HttpStatus.OK);
+//            return new ResponseEntity<>("Login successful", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Login failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // Register / Sign up
+    // Register | Sign up
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         try {
@@ -95,7 +105,11 @@ public class AuthenticationController {
             user.setRoles(Set.of(userRole));
             userRepository.save(user);  // Save the user into the DB
 
-            return new ResponseEntity<>("User registered successfully!", HttpStatus.OK);
+            // Generate JWT token
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+            String token = jwtService.generateToken(userDetails);
+
+            return new ResponseEntity<>(token, HttpStatus.OK);  // Return token
         } catch (Exception e) {
             return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

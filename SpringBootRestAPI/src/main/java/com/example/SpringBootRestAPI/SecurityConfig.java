@@ -57,15 +57,6 @@ public class SecurityConfig {
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
-//    public AuthenticationManager authenticationManager(
-//            UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-//        // DaoAuthenticationProvider: Looks up the UserDetails from the UserDetailsService
-//        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-//        // Validate the password from the UserDetails with passwordEncoder
-//        authenticationProvider.setPasswordEncoder(passwordEncoder);
-//
-//        return new ProviderManager(authenticationProvider);
-//    }
 
     // Hashing password
     @Bean
