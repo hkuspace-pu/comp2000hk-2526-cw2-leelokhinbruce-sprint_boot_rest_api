@@ -1,4 +1,4 @@
-package com.example.SpringBootRestAPI.entity;
+package com.example.SpringBootRestAPI.model;
 
 //import jakarta.persistence.*;
 import jakarta.persistence.Entity;

@@ -1,16 +1,16 @@
 package com.example.SpringBootRestAPI.controller;
 
-import com.example.SpringBootRestAPI.CustomUserDetailsService;
-import com.example.SpringBootRestAPI.JwtTokenService;
+import com.example.SpringBootRestAPI.service.LoginService;
+import com.example.SpringBootRestAPI.service.JwtTokenService;
 import com.example.SpringBootRestAPI.dto.LoginRequest;
 import com.example.SpringBootRestAPI.dto.RegisterRequest;
-import com.example.SpringBootRestAPI.entity.Role;
-import com.example.SpringBootRestAPI.entity.User;
+import com.example.SpringBootRestAPI.model.Role;
+import com.example.SpringBootRestAPI.model.User;
 import com.example.SpringBootRestAPI.repository.RoleRepository;
 import com.example.SpringBootRestAPI.repository.UserRepository;
+import com.example.SpringBootRestAPI.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +22,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -33,43 +30,50 @@ import java.util.*;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;  // created in security config
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
+    private LoginService loginService;  // handle login activities
+    @Autowired
+    private UserService userService;
+    @Autowired
     private UserRepository userRepository;
     @Autowired
-    private RoleRepository roleRepository;
-    @Autowired
-    private JwtTokenService jwtService;
+    private JwtTokenService jwtService;  // handle JWT token methods
 
     // SecurityContextLogoutHandler(): invalidate session and clear the security context
     private final SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
-    @org.springframework.beans.factory.annotation.Autowired
-    private CustomUserDetailsService customUserDetailsService;
 
     // Login | Sign in
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Object> login(@RequestBody LoginRequest loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+            // Create auth obj with auth manager
+            Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
-            // Create an empty SecurityContext instead of using SecurityContextHolder.getContext().setAuthentication(authentication)
-            // to avoid race conditions across multiple threads
-            // SecurityContextHolder: Spring Security stores the details of who is authenticated
-            SecurityContext context = SecurityContextHolder.createEmptyContext();
-            context.setAuthentication(authentication);
+//            SecurityContext context = SecurityContextHolder.createEmptyContext();
+//            context.setAuthentication(auth);
+//            SecurityContextHolder.setContext(context);
 
-            // Spring Security uses this info for authorization
-            SecurityContextHolder.setContext(context);
+            // Fetch user details with username or email
+            UserDetails userDetails = loginService.loadUserByUsername(loginRequest.getUsernameOrEmail());
 
-            String token = jwtService.generateToken((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal());
+            if (auth.isAuthenticated()) {
+                // Generate token for the authentication user
+                String token = jwtService.generateToken(userDetails);
+//                String token = jwtService.generateToken((org.springframework.security.core.userdetails.UserDetails) auth.getPrincipal());
+                Map<String, Object> response = new HashMap<>();
+                response.put("jwt", token);
+                response.put("status", 200);
+                return new ResponseEntity<>("Login successful:\n" + response, HttpStatus.OK);  // Returns token
+            }
+            return new ResponseEntity<>("Login failed: ", HttpStatus.BAD_REQUEST);
 
-            return new ResponseEntity<>(token, HttpStatus.OK);
-//            return new ResponseEntity<>("Login successful", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>("Login failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -78,11 +82,11 @@ public class AuthenticationController {
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
         try {
             // Check for username exists in a DB
-            if (userRepository.existsByUsername(registerRequest.getUsername())) {
+            if (userService.existsByUsername(registerRequest.getUsername())) {
                 return new ResponseEntity<>("Username is already used!", HttpStatus.BAD_REQUEST);
             }
             // Check for email exists in a DB
-            if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            if (userService.existsByEmail(registerRequest.getEmail())) {
                 return new ResponseEntity<>("Email is already used!", HttpStatus.BAD_REQUEST);
             }
 
@@ -96,20 +100,22 @@ public class AuthenticationController {
             user.setPhoneNumber(registerRequest.getPhoneNumber());
             user.setGender(registerRequest.getGender());
 
-            Optional<Role> roles = roleRepository.findByName("ROLE_USER");
+            Optional<Role> roles = userService.findByName("ROLE_USER");
 
             if (roles.isEmpty())
                 return new ResponseEntity<>("ROLE_USER not found. Contact admin", HttpStatus.INTERNAL_SERVER_ERROR);
             Role userRole = roles.get();
 
-            user.setRoles(Set.of(userRole));
+            user.setRole(userRole);
             userRepository.save(user);  // Save the user into the DB
 
             // Generate JWT token
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(user.getEmail());
+            UserDetails userDetails = loginService.loadUserByUsername(user.getEmail());
             String token = jwtService.generateToken(userDetails);
-
-            return new ResponseEntity<>(token, HttpStatus.OK);  // Return token
+            Map<String, Object> response = new HashMap<>();
+            response.put("jwt", token);
+            response.put("status", 200);
+            return new ResponseEntity<>("Registration successful:\n" + response, HttpStatus.OK);  // Returns token
         } catch (Exception e) {
             return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

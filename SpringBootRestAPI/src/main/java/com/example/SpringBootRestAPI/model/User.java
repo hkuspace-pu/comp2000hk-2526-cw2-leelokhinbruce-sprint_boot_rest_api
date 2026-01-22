@@ -1,4 +1,4 @@
-package com.example.SpringBootRestAPI.entity;
+package com.example.SpringBootRestAPI.model;
 
 //import jakarta.persistence.*;
 import jakarta.persistence.*;
@@ -20,9 +20,10 @@ public class User {
 
     @ManyToMany(targetEntity = Role.class)
     @JoinTable(
-            name = "user_roles",
+            name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Role role;
+//    private Set<Role> roles;
 }

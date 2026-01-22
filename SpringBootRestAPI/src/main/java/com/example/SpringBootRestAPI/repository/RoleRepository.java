@@ -1,6 +1,6 @@
 package com.example.SpringBootRestAPI.repository;
 
-import com.example.SpringBootRestAPI.entity.Role;
+import com.example.SpringBootRestAPI.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;import java.util.Optional;
 
