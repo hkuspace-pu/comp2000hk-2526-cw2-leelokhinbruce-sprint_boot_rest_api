@@ -55,11 +55,19 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // Link the LoginService and password encoder to auth user properly
+    @Bean
+    public AuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(loginService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
     // Auth logic during login
     // To finalize the config of auth manager
     @Bean
     public AuthenticationManager authManager(
-            AuthenticationConfiguration config) throws Exception {
+            AuthenticationConfiguration config) {
         return config.getAuthenticationManager();
     }
 

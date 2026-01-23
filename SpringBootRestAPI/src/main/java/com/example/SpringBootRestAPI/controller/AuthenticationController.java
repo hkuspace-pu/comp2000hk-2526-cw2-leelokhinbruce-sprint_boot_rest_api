@@ -73,7 +73,7 @@ public class AuthenticationController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Login error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -103,7 +103,7 @@ public class AuthenticationController {
             Optional<Role> roles = userService.findByName("ROLE_USER");
 
             if (roles.isEmpty())
-                return new ResponseEntity<>("ROLE_USER not found. Contact admin", HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>("ROLE_USER not found. Contact admin", HttpStatus.BAD_REQUEST);
             Role userRole = roles.get();
 
             user.setRole(userRole);
@@ -117,7 +117,7 @@ public class AuthenticationController {
             response.put("status", 200);
             return new ResponseEntity<>("Registration successful:\n" + response, HttpStatus.OK);  // Returns token
         } catch (Exception e) {
-            return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

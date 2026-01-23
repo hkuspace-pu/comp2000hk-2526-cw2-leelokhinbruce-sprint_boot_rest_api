@@ -29,6 +29,7 @@ public class LoginService implements UserDetailsService{
         // Look up UserDetails for a given username or email
         User user = userService.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
         if (user != null) {
+            // Return an instance of the UserDetails interface with these data (username, password, authorities)
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getUsername())
                     .password(user.getPassword())

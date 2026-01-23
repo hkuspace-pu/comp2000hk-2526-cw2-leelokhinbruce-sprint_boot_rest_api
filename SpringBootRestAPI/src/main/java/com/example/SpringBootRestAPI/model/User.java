@@ -18,12 +18,18 @@ public class User {
     private String username, phoneNumber, firstName, lastName, gender, email;
     private String password;  // Hash with BCrypt
 
-    @ManyToMany(targetEntity = Role.class)
+    @ManyToOne
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Role role;
+//    @ManyToMany(targetEntity = Role.class)
+//    @JoinTable(
+//            name = "user_role",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "role_id")
+//    )
 //    private Set<Role> roles;
 }
