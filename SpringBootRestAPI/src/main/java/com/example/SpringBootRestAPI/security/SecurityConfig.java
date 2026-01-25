@@ -43,6 +43,8 @@ public class SecurityConfig {
 //                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // for pre-flight
                                 // Allow /api/auth/register & /api/auth/login to be accessed without authentication via permitAll()
                                 .requestMatchers("/api/auth/**").permitAll()
+                                // Require authenticated before access
+                                .requestMatchers("/api/guest/**").authenticated()
                                 .anyRequest().authenticated()  // authorize the request
                 )
                 // Persist the auth user obj with the session
