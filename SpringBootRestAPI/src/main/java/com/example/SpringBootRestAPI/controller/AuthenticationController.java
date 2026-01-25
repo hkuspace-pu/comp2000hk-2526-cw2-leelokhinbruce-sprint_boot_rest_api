@@ -62,12 +62,11 @@ public class AuthenticationController {
 
             if (auth.isAuthenticated()) {
                 // Generate token for the authentication user
-                String token = jwtService.generateToken(userDetails);
+                String access_token = jwtService.generateToken(userDetails);
 //                String token = jwtService.generateToken((org.springframework.security.core.userdetails.UserDetails) auth.getPrincipal());
-                Map<String, Object> response = new HashMap<>();
-                response.put("jwt", token);
-                response.put("status", 200);
-                return new ResponseEntity<>("Login successful:\n" + response, HttpStatus.OK);  // Returns token
+                Map<String, String> response = new HashMap<>();
+                response.put("access_token", access_token);
+                return new ResponseEntity<>(response, HttpStatus.OK);  // Returns token
             }
             return new ResponseEntity<>("Login failed: ", HttpStatus.BAD_REQUEST);
 
@@ -111,11 +110,10 @@ public class AuthenticationController {
 
             // Generate JWT token
             UserDetails userDetails = loginService.loadUserByUsername(user.getEmail());
-            String token = jwtService.generateToken(userDetails);
-            Map<String, Object> response = new HashMap<>();
-            response.put("jwt", token);
-            response.put("status", 200);
-            return new ResponseEntity<>("Registration successful:\n" + response, HttpStatus.OK);  // Returns token
+            String access_token = jwtService.generateToken(userDetails);
+            Map<String, String> response = new HashMap<>();
+            response.put("access_token", access_token);
+            return new ResponseEntity<>(response, HttpStatus.OK);  // Returns token
         } catch (Exception e) {
             return new ResponseEntity<>("Registration failed: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
