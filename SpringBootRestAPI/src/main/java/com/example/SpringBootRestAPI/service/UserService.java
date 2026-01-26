@@ -41,4 +41,8 @@ public class UserService {
     public Optional<Role> findByName(String name) {
         return roleRepository.findByName(name);
     }
+
+    public void saveAndFlush(User user) {
+        userRepository.saveAndFlush(user);
+    }
 }

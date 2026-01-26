@@ -1,8 +1,8 @@
 package com.example.SpringBootRestAPI.model;
 
-//import jakarta.persistence.*;
 import jakarta.persistence.*;
-import lombok.Data;import java.util.Set;
+import lombok.Data;
+import java.util.Set;
 
 @Data
 @Entity
@@ -18,11 +18,7 @@ public class User {
     private String username, phoneNumber, firstName, lastName, gender, email;
     private String password;  // Hash with BCrypt
 
+    // many users to one role
     @ManyToOne
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
     private Role role;
 }

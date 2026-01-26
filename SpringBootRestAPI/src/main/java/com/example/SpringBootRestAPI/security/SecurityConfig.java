@@ -45,6 +45,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/auth/**").permitAll()
                                 // Require authenticated before access
                                 .requestMatchers("/api/guest/**").authenticated()
+                                .requestMatchers("/api/staff/**").authenticated()
                                 .anyRequest().authenticated()  // authorize the request
                 )
                 // Persist the auth user obj with the session

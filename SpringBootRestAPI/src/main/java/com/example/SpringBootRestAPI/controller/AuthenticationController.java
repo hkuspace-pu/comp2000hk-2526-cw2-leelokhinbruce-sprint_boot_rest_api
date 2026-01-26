@@ -53,20 +53,19 @@ public class AuthenticationController {
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     loginRequest.getUsernameOrEmail(), loginRequest.getPassword()));
 
-//            SecurityContext context = SecurityContextHolder.createEmptyContext();
-//            context.setAuthentication(auth);
-//            SecurityContextHolder.setContext(context);
-
             // Fetch user details with username or email
             UserDetails userDetails = loginService.loadUserByUsername(loginRequest.getUsernameOrEmail());
 
             if (auth.isAuthenticated()) {
                 // Generate token for the authentication user
                 String access_token = jwtService.generateToken(userDetails);
-//                String token = jwtService.generateToken((org.springframework.security.core.userdetails.UserDetails) auth.getPrincipal());
+                User user = userService.findByUsername(userDetails.getUsername());
+                String role = user.getRole().getName();  // e.g. ROLE_GUEST or ROLE_STAFF
+
                 Map<String, String> response = new HashMap<>();
                 response.put("access_token", access_token);
-                return new ResponseEntity<>(response, HttpStatus.OK);  // Returns token
+                response.put("role", role);
+                return new ResponseEntity<>(response, HttpStatus.OK);  // Returns token and role
             }
             return new ResponseEntity<>("Login failed: ", HttpStatus.BAD_REQUEST);
 
@@ -99,10 +98,8 @@ public class AuthenticationController {
             user.setPhoneNumber(registerRequest.getPhoneNumber());
             user.setGender(registerRequest.getGender());
 
-            Optional<Role> roles = userService.findByName("ROLE_USER");
-
-            if (roles.isEmpty())
-                return new ResponseEntity<>("ROLE_USER not found. Contact admin", HttpStatus.BAD_REQUEST);
+            // Apply "Guest" role to the user
+            Optional<Role> roles = userService.findByName("ROLE_GUEST");
             Role userRole = roles.get();
 
             user.setRole(userRole);
