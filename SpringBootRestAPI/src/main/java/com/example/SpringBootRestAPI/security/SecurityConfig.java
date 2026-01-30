@@ -4,6 +4,7 @@ import com.example.SpringBootRestAPI.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,11 +26,6 @@ public class SecurityConfig {
     private AuthenticationFilter authFilter;  // intercept and validate JWTs
     @Autowired
     private LoginService loginService;  // fetch user details from the database
-//    private UserDetailsService userDetailsService;
-//
-//    public SecurityConfig(UserDetailsService userDetailsService) {
-//        this.userDetailsService = userDetailsService;
-//    }
 
     // SecurityFilterChain: configs endpoint-level access control based on user roles
     @Bean

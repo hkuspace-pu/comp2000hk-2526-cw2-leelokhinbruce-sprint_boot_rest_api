@@ -71,7 +71,7 @@ public class AuthenticationController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("Login error: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Login error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

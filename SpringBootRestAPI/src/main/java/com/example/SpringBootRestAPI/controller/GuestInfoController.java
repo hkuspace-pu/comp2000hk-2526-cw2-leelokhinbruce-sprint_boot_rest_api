@@ -19,7 +19,7 @@ public class GuestInfoController {
 
     // Get guest data
     @GetMapping("/profile_details")
-    public ResponseEntity<GuestDataRequest> getGuestData(Authentication auth) {
+    public ResponseEntity<?> getGuestData(Authentication auth) {
         try {
             // Get the auth user's username from the auth principal
             String username = auth.getName();
@@ -34,7 +34,7 @@ public class GuestInfoController {
                     user.getPhoneNumber());
             return ResponseEntity.ok(guestDataRequest);  // Returns the obj
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return new ResponseEntity<>("Failed to get guest data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

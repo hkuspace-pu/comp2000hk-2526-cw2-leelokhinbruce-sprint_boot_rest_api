@@ -11,11 +11,11 @@ import java.util.Date;import java.util.HashMap;import java.util.Map;import java.
 @Service
 public class JwtTokenService {
     private static final long EXPIRATION_TIME = 86400000;  // 24 hrs
-    // Replace with a secret key
-    private final String SECRET_KEY = "TmV3U2VjcmV0S2V5Rm9ySldUU2lnbmluZ1B1cnBvc2VzMTIzNDU2Nzg=\r\n";
+    private static final String SECRET_KEY = "TmV3U2VjcmV0S2V5Rm9ySldUU2lnbmluZ1B1cnBvc2VzMTIzNDU2Nzg=\r\n";
 
     // Secret key with decoder
     public Key getSingleKey() {
+        // Replace with a secret key
         byte[] getKey = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(getKey);
     }
