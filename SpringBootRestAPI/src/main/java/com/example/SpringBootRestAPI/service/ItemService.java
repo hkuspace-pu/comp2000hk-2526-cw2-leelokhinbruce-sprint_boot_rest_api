@@ -3,20 +3,23 @@ package com.example.SpringBootRestAPI.service;
 import com.example.SpringBootRestAPI.model.MenuItem;
 import com.example.SpringBootRestAPI.repository.MenuItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;import java.util.Optional;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ItemService {
     @Autowired
     private MenuItemRepository menuItemRepository;
 
-    public MenuItem findAllMenuItems() {
-        return (MenuItem) menuItemRepository.findAll();
+    public List<MenuItem> findAllMenuItems() {
+        return menuItemRepository.findAll();
     }
 
-    // Query menu items with the specific category
-    public MenuItem findMenuItemWithRelatedCategory(String mealTiem) {
-        return menuItemRepository.findMenuItemByMealTime(mealTiem);
+    // Query menu items with the specific meal time
+    public List<MenuItem> findMenuItemWithRelatedMealTime(String mealTime) {
+        return menuItemRepository.findMenuItemByMealTime(mealTime);
     }
 
     // Find a menu item with id

@@ -1,5 +1,6 @@
 package com.example.SpringBootRestAPI.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -8,5 +9,9 @@ import java.util.Date;
 public class MenuItemRequest {
     private String foodName, category, mealTime;
     private double price;
-    private boolean isAvailable, isPromotion;
+
+    @JsonProperty("isAvailable")
+    private boolean isAvailable;
+    @JsonProperty("isPromotion")
+    private boolean isPromotion;
 }

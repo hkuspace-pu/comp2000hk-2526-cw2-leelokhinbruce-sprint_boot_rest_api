@@ -11,9 +11,19 @@ public class MenuItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)  // auto-generating number incrementally
     private int id;  // server id
 
-    private String foodName, category, mealTime;
-    private double price;
-    private boolean isAvailable, isPromotion;
+    @Column(name = "food_name")
+    private String foodName;
+    private String category;
+    @Column(name = "meal_time")
+    private String mealTime;
 
+    private double price;
+
+    @Column(name = "is_available")
+    private boolean isAvailable;
+    @Column(name = "is_promotion")
+    private boolean isPromotion;
+
+    @Column(name = "updated_at")
     private Date updatedAt;
 }

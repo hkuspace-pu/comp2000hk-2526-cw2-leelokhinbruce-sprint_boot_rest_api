@@ -2,18 +2,13 @@ package com.example.SpringBootRestAPI.controller;
 
 import com.example.SpringBootRestAPI.dto.MenuItemRequest;
 import com.example.SpringBootRestAPI.model.MenuItem;
-import com.example.SpringBootRestAPI.repository.MenuItemRepository;
 import com.example.SpringBootRestAPI.service.ItemService;
-import com.example.SpringBootRestAPI.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -24,7 +19,8 @@ public class MenuItemController {
     @Autowired
     private ItemService itemService;
 
-//    ---- Public (Anyone can read) ----
+//    ---- Guest and Staff can get all for sync ----
+    @PreAuthorize("hasAnyRole('GUEST', 'STAFF')")
     @GetMapping
     public ResponseEntity<?> getAllMenuItems() {
         try {
@@ -35,17 +31,19 @@ public class MenuItemController {
         }
     }
 
-    @GetMapping("/{category}")
-    public ResponseEntity<?> getMenuItemsWithRelatedMealTime(@PathVariable String mealTime) {
+    //  ---- Guest only for browsing ---- (Fail)
+    @PreAuthorize("hasRole('GUEST')")
+    @GetMapping("/{mealTime}")
+    public ResponseEntity<?> getMenuItemsWithRelatedMealTime(String mealTime) {
         try {
-            return ResponseEntity.ok(itemService.findMenuItemWithRelatedCategory(mealTime));
+            return ResponseEntity.ok(itemService.findMenuItemWithRelatedMealTime(mealTime));
         } catch (Exception e) {
-            return new ResponseEntity<>("Failed to get menu item with the meal time: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Failed to get menu items: " +
+                    e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-//    ---- Private (Staff only) ----
+//    ---- Staff only ----
     // Add menu item
     @PreAuthorize("hasRole('STAFF')")  // Spring auto prefixes "ROLE_"
     @PostMapping
