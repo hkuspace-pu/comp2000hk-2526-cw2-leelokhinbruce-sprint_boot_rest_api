@@ -103,7 +103,7 @@ public class AuthenticationController {
             Role userRole = roles.get();
 
             user.setRole(userRole);
-            userRepository.save(user);  // Save the user into the DB
+            userService.save(user);  // Save the user into the DB
 
             // Generate JWT token
             UserDetails userDetails = loginService.loadUserByUsername(user.getEmail());

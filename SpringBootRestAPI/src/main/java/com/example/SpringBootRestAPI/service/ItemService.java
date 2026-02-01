@@ -1,10 +1,13 @@
 package com.example.SpringBootRestAPI.service;
 
 import com.example.SpringBootRestAPI.model.MenuItem;
+import com.example.SpringBootRestAPI.model.Reservation;
 import com.example.SpringBootRestAPI.repository.MenuItemRepository;
+import com.example.SpringBootRestAPI.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +15,10 @@ import java.util.Optional;
 public class ItemService {
     @Autowired
     private MenuItemRepository menuItemRepository;
+    @Autowired
+    private ReservationRepository reservationRepository;
 
+//    ---- Menu Item Repository Methods ----
     public List<MenuItem> findAllMenuItems() {
         return menuItemRepository.findAll();
     }
@@ -38,5 +44,28 @@ public class ItemService {
     // Save
     public void saveMenuItem(MenuItem menuItem) {
         menuItemRepository.save(menuItem);
+    }
+
+
+//    ---- Reservation Repository Methods ----
+    public List<Reservation> findAllReservations() {
+        return reservationRepository.findAll();
+    }
+
+    public Optional<Reservation> findReservationById(String id) {
+        return reservationRepository.findById(id);
+    }
+
+    public Boolean existReservationById(String id) {
+        return reservationRepository.existsById(id);
+    }
+
+    public void deleteReservationById(String id) {
+        reservationRepository.deleteById(id);
+    }
+
+    // Save
+    public void saveReservation(Reservation reservation) {
+        reservationRepository.save(reservation);
     }
 }

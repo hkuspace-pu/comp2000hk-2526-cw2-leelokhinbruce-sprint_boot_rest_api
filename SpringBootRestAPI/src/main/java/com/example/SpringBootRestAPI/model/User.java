@@ -18,7 +18,7 @@ public class User {
     private String username, phoneNumber, firstName, lastName, gender, email;
     private String password;  // Hash with BCrypt
 
-    // many users to one role
+    // Each role has multiple users
     @ManyToOne
     private Role role;
 }
